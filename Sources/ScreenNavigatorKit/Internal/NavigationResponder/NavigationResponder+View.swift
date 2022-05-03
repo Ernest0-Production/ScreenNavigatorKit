@@ -19,7 +19,7 @@ private struct NavigationResponderView<Content: View>: View {
 
     var body: some View {
         content
-            .push(responder.binding(\.pushedView))
-            .sheet(responder.binding(\.presentedView))
+            .push($responder.pushedView)
+            .sheet($responder.presentedView)
     }
 }

@@ -17,6 +17,7 @@ struct ExampleApp: App {
             NavigationView {
                 ContentView()
             }
+            .navigationViewStyle(.stack)
             .environmentObject(screenNavigator)
         }
     }

@@ -25,39 +25,39 @@ struct ContentView: View {
             actions: [
                 .push("push screen 1", AnyScreenView(title: "Screen 1")),
 
-                .push("push screen 2", AnyScreenView(
-                    title: "Screen 2",
-                    actions: [
-                        .push("push screen 3", AnyScreenView(
-                            title: "Screen 3",
-                            actions: [
-                                .pop("Pop"),
-                                .popTo("Pop To Root", ScreenTag.root),
-                            ]
-                        )),
-                        .pop("Pop")
-                    ]
-                )),
+                    .push("push screen 2", AnyScreenView(
+                        title: "Screen 2",
+                        actions: [
+                            .push("push screen 3", AnyScreenView(
+                                title: "Screen 3",
+                                actions: [
+                                    .pop("Pop"),
+                                    .popTo("Pop To Root", ScreenTag.root),
+                                ]
+                            )),
+                            .pop("Pop")
+                        ]
+                    )),
 
-                .present("present screen 1", AnyScreenView(
-                    title: "Screen 1",
-                    actions: [
-                        .present("present screen 3", AnyScreenView(
-                            title: "Screen 3",
-                            actions: [
-                                .dismiss("dismiss"),
-                                .dismissTo("dismiss to root", ScreenTag.root),
-                                .custom("update root state") { someValue += 1 }
-                            ]
-                        ))
-                    ]
-                )),
+                    .present("present screen 1", AnyScreenView(
+                        title: "Screen 1",
+                        actions: [
+                            .present("present screen 3", AnyScreenView(
+                                title: "Screen 3",
+                                actions: [
+                                    .dismiss("dismiss"),
+                                    .dismissTo("dismiss to root", ScreenTag.root),
+                                    .custom("update root state") { someValue += 1 }
+                                ]
+                            ))
+                        ]
+                    )),
 
-                .present("present screen 2", AnyScreenView(title: "Screen 2")),
+                    .present("present screen 2", AnyScreenView(title: "Screen 2")),
 
-                .custom("Push Another Screen") {
-                    screenNavigator.push { AnotherView() }
-                }
+                    .custom("Push Another Screen") {
+                        screenNavigator.push { AnotherView() }
+                    }
             ]
         )
             .screenTag(ScreenTag.root)

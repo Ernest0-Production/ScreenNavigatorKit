@@ -12,11 +12,7 @@ extension View {
         _ destination: Binding<(() -> Destination)?>
     ) -> some View {
         background(NavigationLink(
-            destination: Group {
-                if let view = destination.wrappedValue {
-                    view()
-                }
-            },
+            destination: destination.wrappedValue?(),
             isActive: destination.isNotNil(),
             label: { EmptyView() }
         ).isDetailLink(false))

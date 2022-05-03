@@ -13,11 +13,7 @@ extension View {
     ) -> some View {
         sheet(
             isPresented: destination.isNotNil(),
-            content: {
-                if let view = destination.wrappedValue {
-                    view()
-                }
-            }
+            content: { destination.wrappedValue?() }
         )
     }
 }

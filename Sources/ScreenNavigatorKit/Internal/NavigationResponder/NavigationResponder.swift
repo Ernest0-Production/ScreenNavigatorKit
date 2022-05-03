@@ -35,12 +35,11 @@ final class NavigationResponder: ObservableObject {
     }
 
     private func chainedView<NextView: View>(with view: NextView, by id: ID) -> AnyView {
-        let nextViewResponder = nextResponder[id, default: NavigationResponder()]
-        nextViewResponder.parentResponder = self
-        nextResponder[id] = nextViewResponder
+        let nextResponder = nextResponder[id, default: NavigationResponder()]
+        nextResponder.parentResponder = self
 
         return AnyView(
-            view.navigationResponding(with: nextViewResponder)
+            view.navigationResponding(with: nextResponder)
         )
     }
 }

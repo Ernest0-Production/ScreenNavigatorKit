@@ -27,6 +27,6 @@ public final class ScreenNavigator<ScreenTag: Hashable>: ObservableObject {
     let responders: WeakDictionary<ScreenTag, NavigationResponder>
 
     public func focused(on screenTag: ScreenTag) -> ScreenNavigator {
-        ScreenNavigator(rootScreenTag: screenTag,responders: responders)
+        ScreenNavigator(rootScreenTag: screenTag, responders: responders)
     }
 }
