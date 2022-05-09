@@ -9,11 +9,11 @@ import SwiftUI
 
 extension View {
     func sheet<Destination: View>(
-        _ destination: Binding<(() -> Destination)?>
+        _ destination: Binding<Destination?>
     ) -> some View {
         sheet(
             isPresented: destination.isNotNil(),
-            content: { destination.wrappedValue?() }
+            content: { destination.wrappedValue }
         )
     }
 }
