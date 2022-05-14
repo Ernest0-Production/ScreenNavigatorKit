@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  AnySequence+first.swift
+//  ScreenNavigatorKit
 //
 //  Created by Ernest Babayan on 09.05.2022.
 //

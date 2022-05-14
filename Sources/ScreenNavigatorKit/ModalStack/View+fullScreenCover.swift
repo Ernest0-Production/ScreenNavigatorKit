@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  View+fullScreenCover.swift
+//  ScreenNavigatorKit
 //
 //  Created by Ernest Babayan on 25.04.2022.
 //

@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  View+asAny.swift
+//  ScreenNavigatorKit
 //
 //  Created by Ernest Babayan on 03.05.2022.
 //

@@ -25,7 +25,7 @@ struct ExampleApp: App {
                         pushActions: [
                             PushAction(title: "push") {
                                 $0.push(
-                                    screenTag: "Screen 2",
+                                    tag: "Screen 2",
                                     ExampleScreenView(
                                         title: "Screen 2",
                                         pushActions: [
@@ -56,7 +56,7 @@ struct ExampleApp: App {
                         ],
                         presentActions: [
                             PresentAction(title: "present") {
-                                $0.present(.fullScreenCover, screenTag: "Screen 2", ExampleScreenView(
+                                $0.present(.fullScreenCover, tag: "Screen 2", ExampleScreenView(
                                     title: "Screen 2",
                                     presentActions: [
                                         PresentAction(title: "Update global state \(globalState)") { _ in

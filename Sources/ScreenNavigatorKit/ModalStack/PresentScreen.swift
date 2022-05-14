@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  PresentScreen.swift
+//  ScreenNavigatorKit
 //
 //  Created by Ernest Babayan on 09.05.2022.
 //

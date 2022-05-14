@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  PushScreen.swift
+//  ScreenNavigatorKit
 //
 //  Created by Ernest Babayan on 08.05.2022.
 //

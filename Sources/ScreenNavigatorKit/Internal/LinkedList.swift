@@ -1,6 +1,6 @@
 //
-//  WeakLinkedList.swift
-//  
+//  LinkedList.swift
+//  ScreenNavigatorKit 
 //
 //  Created by Ernest Babayan on 04.05.2022.
 //
