@@ -14,7 +14,7 @@ Framework that provide convenient environment for manage navigation in SwiftUI.
 - Xcode 12.0+
 - Swift 5.3+
 
-# 🧐 How it work?!
+# 🧐 How does it work?!
 
 Framework has only two `state object`, each of which isolates "toggle-work" of `@State var isActive: Bool` and `@State var isPresent: Bool` flags.
 
@@ -123,7 +123,7 @@ modalStack.present(.sheet, tag: Screen.detail, DetailView())
 modalStack.dismiss(to: Screen.detail)
 ```
 
-**🚧 NOTE:** `SwiftUI` not allow dismiss multiple views at once! Therefore, methods such as `dismissAll()` or `dismiss(to:)`/`dismiss(from:)` will close all views **sequentially**. 
+**🚧 NOTE:** `SwiftUI` does not allow to dismiss multiple views at once! Therefore, methods such as `dismissAll()` or `dismiss(to:)`/`dismiss(from:)` will close all views **sequentially**. 
 
 To attach `ModalStack` to a `view`, you need to declare a **root view** on top of which all views will be presented using the method `definesPresentationContext(with:)`:
 ```swift
@@ -150,7 +150,7 @@ struct RootView: View {
             Button("FAQ") { 
                 modalStack.present(.sheet, FAQView())
             }
-            Button("Auhorize") { 
+            Button("Authorize") { 
                 modalStack.present(.fullScreenCover, LoginView())
             }
         }
@@ -181,15 +181,15 @@ struct RootView: View {
 
 # FAQ
 
-> Can i mix this framework with existing navigation approach in my project?
+### Can i mix this framework with existing navigation approach in my project?
 
 **Yes, you can**. The framework does not affect navigation built in other ways, such as through the standard `@State var isActive: Bool` flags or through UIKit hacks.\
-`NavigationStack` and `ModalStack` create local state and and manage only their own state.
+`NavigationStack` and `ModalStack` create local state and manage only their own state.
 
-> What about `Alert`?
+### What about `Alert`?
 
 Unfortunately, the framework **does not support** such a mechanism for working with `Alert`, BUT **you can implement it yourself by analogy** with `ModalStack`.\
-Your project can have many different custom presentations (`popup`, `snackbar`, `toats`, `notifications`) and each of them require specific logic for handle hierarchy, depending on their implementation.\
+Your project can have many different custom presentations (`popup`, `snackbar`, `toast`, `notifications`) and each of them require specific logic for handle hierarchy, depending on their implementation.\
 So adding new presentation methods to the framework **is not planned**.
 
 # 📦 Installation
