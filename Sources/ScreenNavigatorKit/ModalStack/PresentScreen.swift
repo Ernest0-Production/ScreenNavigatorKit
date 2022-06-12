@@ -36,11 +36,8 @@ struct PresentScreenView<Content: View>: View {
     @ObservedObject var screen: PresentScreen
 
     var body: some View {
-        switch screen.presentationStyle {
-        case .sheet, .none:
-            content.sheet($screen.presentedView)
-        case .fullScreenCover:
-            content.fullScreenCover($screen.presentedView)
-        }
+        content
+            .sheet($screen.presentedView.when(screen.presentationStyle == .sheet))
+            .fullScreenCover($screen.presentedView.when(screen.presentationStyle == .fullScreenCover))
     }
 }
