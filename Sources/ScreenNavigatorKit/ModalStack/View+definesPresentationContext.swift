@@ -8,20 +8,20 @@
 import SwiftUI
 
 public extension View {
-    /// Makes this view the **root view** on top of which all ModalStack views will be presented.
+    /// Makes this view the **root view** on top of which all ModalStackController views will be presented.
     func definesPresentationContext(
-        with modalStack: @autoclosure @escaping () -> ModalStack = ModalStack()
+        with modalStackController: @autoclosure @escaping () -> ModalStackController = ModalStackController()
     ) -> some View {
-        modifier(EmbedModalStackViewModifier(modalStack: modalStack()))
+        modifier(EmbedModalStackViewModifier(modalStackController: modalStackController()))
     }
 }
 
 private struct EmbedModalStackViewModifier: ViewModifier {
-    @StateObject var modalStack: ModalStack
+    @StateObject var modalStackController: ModalStackController
 
     func body(content: Content) -> some View {
-        modalStack
+        modalStackController
             .rootBody(content: content)
-            .environmentObject(modalStack)
+            .environmentObject(modalStackController)
     }
 }

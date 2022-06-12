@@ -1,5 +1,5 @@
 //
-//  ModalStack.swift
+//  ModalStackController.swift
 //  ScreenNavigatorKit
 //
 //  Created by Ernest Babayan on 03.05.2022.
@@ -11,7 +11,7 @@ import Combine
 /// Managed object that control modal stack hierarchy when present or dismiss views.
 ///
 /// - Should be binded in specific View that become root view.
-public final class ModalStack: ObservableObject {
+public final class ModalStackController: ObservableObject {
     // MARK: - Initializer
 
     public init() {}

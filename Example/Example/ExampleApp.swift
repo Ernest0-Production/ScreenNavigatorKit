@@ -90,29 +90,29 @@ struct ExampleApp: App {
 }
 
 struct PushAction {
-    internal init(title: String, _ perform: @escaping (NavigationStack) -> Void) {
+    internal init(title: String, _ perform: @escaping (NavigationStackController) -> Void) {
         self.title = title
         self.perform = perform
     }
 
     let title: String
-    let perform: (NavigationStack) -> Void
+    let perform: (NavigationStackController) -> Void
 }
 
 struct PresentAction {
-    internal init(title: String, _ perform: @escaping (ModalStack) -> Void) {
+    internal init(title: String, _ perform: @escaping (ModalStackController) -> Void) {
         self.title = title
         self.perform = perform
     }
 
     let title: String
-    let perform: (ModalStack) -> Void
+    let perform: (ModalStackController) -> Void
 }
 
 struct ExampleScreenView: View {
     let title: String
-    @EnvironmentObject var navigationStack: NavigationStack
-    @EnvironmentObject var modalStack: ModalStack
+    @EnvironmentObject var navigationStackController: NavigationStackController
+    @EnvironmentObject var modalStackController: ModalStackController
     var pushActions: [PushAction] = []
     var presentActions: [PresentAction] = []
     @State var state = 0
@@ -123,14 +123,14 @@ struct ExampleScreenView: View {
             Button("update screen state \(state)") {
                 state += 1
             }
-            ForEach(0..<pushActions.count) { index in
+            ForEach(0..<pushActions.count, id: \.self) { index in
                 Button(pushActions[index].title) {
-                    pushActions[index].perform(navigationStack)
+                    pushActions[index].perform(navigationStackController)
                 }
             }
-            ForEach(0..<presentActions.count) { index in
+            ForEach(0..<presentActions.count, id: \.self) { index in
                 Button(presentActions[index].title) {
-                    presentActions[index].perform(modalStack)
+                    presentActions[index].perform(modalStackController)
                 }
             }
         }

@@ -18,17 +18,17 @@ Framework that provide convenient environment for manage navigation in SwiftUI.
 
 Framework has only two `state object`, each of which isolates "toggle-work" of `@State var isActive: Bool` and `@State var isPresent: Bool` flags.
 
-## 1. `NavigationStack`
+## 1. `NavigationStackController`
 
 Like `UINavigationController`, it **store stack state** and **provide stack transformation** using `push` and `pop` methods:
 ```swift
-let navigationStack = NavigationStack()
+let navigationStackController = NavigationStackController()
 
 // Standard usage
 
-navigationStack.push(Text("My View"))
-navigationStack.pop()
-navigationStack.popToRoot()
+navigationStackController.push(Text("My View"))
+navigationStackController.pop()
+navigationStackController.popToRoot()
 
 // Advanced usage
 
@@ -37,39 +37,39 @@ enum Screen: Hashable {
     ...
 }
 
-navigationStack.push(tag: Screen.detail, DetailView())
-navigationStack.pop(to: Screen.detail)
+navigationStackController.push(tag: Screen.detail, DetailView())
+navigationStackController.pop(to: Screen.detail)
 ```
-Its companion is `NavigationStackView` – wrapper over `NavigationView` that bind `NavigationStack` with it:
+Its companion is `NavigationStackView` – wrapper over `NavigationView` that bind `NavigationStackController` with it:
 ```swift
 struct ContentView: View { 
-    @StateObject var navigationStack = NavigationStack() 
+    @StateObject var navigationStackController = NavigationStackController() 
 
     var body: some View { 
-        NavigationStackView(navigationStack) { 
+        NavigationStackView(navigationStackController) { 
             RootView(
                 showDetails: { model in 
-                    navigationStack.push(DetailView(model: model))
+                    navigationStackController.push(DetailView(model: model))
                 },
                 showSettings: { 
-                    navigationStack.push(SettingsView())
+                    navigationStackController.push(SettingsView())
                 }
             )
         }
     }
 }
 
-// Another usage with automatic initialized NavigationStack
+// Another usage with automatic initialized NavigationStackController
 
 struct ContentView: View { 
     var body: some View { 
-        NavigationStackView { navigationStack in
+        NavigationStackView { controller in
             RootView(
                 showDetails: { model in 
-                    navigationStack.push(DetailView(model: model))
+                    controller.push(DetailView(model: model))
                 },
                 showSettings: { 
-                    navigationStack.push(SettingsView())
+                    controller.push(SettingsView())
                 }
             )
         }
@@ -77,17 +77,17 @@ struct ContentView: View {
 }
 ```
 
-Any pushed view has access to `NavigationStack` of `NavigationStackView` through `EnvironmentObject`:
+Any pushed view has access to `NavigationStackController` of `NavigationStackView` through `EnvironmentObject`:
 ```swift
 struct DetailView: View { 
     let model: Model
-    @EnvironmentObject var navigationStack: NavigationStack
+    @EnvironmentObject var navigationStackController: NavigationStackController
 
     var body: some View { 
         VStack { 
             Text(model.title)
             Button("pop to root") { 
-                navigationStack.popToRoot()
+                navigationStackController.popToRoot()
             }
         }
     }
@@ -95,22 +95,22 @@ struct DetailView: View {
 ```
 **💫 EXTRA FEATURE:** You can tag any pushed view using any `Hashable` type. It allow refer to specific screen on pop:
 ```swift
-navigationStack.push(tag: "Screen 1", Screen1()))
-navigationStack.pop(to: "Screen 1")
+navigationStackController.push(tag: "Screen 1", Screen1()))
+navigationStackController.pop(to: "Screen 1")
 ```
 
-## 2. `ModalStack`
+## 2. `ModalStackController`
 
-Like `NavigationStack`, the `ModalStack` **control modal stack hierarchy** and **provide stack transformation** using `present` and `dismiss` methods:
+Like `NavigationStackController`, the `ModalStackController` **control modal stack hierarchy** and **provide stack transformation** using `present` and `dismiss` methods:
 ```swift
-let modalStack = ModalStack()
+let modalStackController = ModalStackController()
 
 // Standard usage
 
-modalStack.present(.sheet, Text("My View"))
-modalStack.present(.fullScreenCover, Text("Another View"))
-modalStack.dismiss()
-modalStack.dismissAll()
+modalStackController.present(.sheet, Text("My View"))
+modalStackController.present(.fullScreenCover, Text("Another View"))
+modalStackController.dismiss()
+modalStackController.dismissAll()
 
 // Advanced usage
 
@@ -119,48 +119,48 @@ enum Screen: Hashable {
     ...
 }
 
-modalStack.present(.sheet, tag: Screen.detail, DetailView())
-modalStack.dismiss(to: Screen.detail)
+modalStackController.present(.sheet, tag: Screen.detail, DetailView())
+modalStackController.dismiss(to: Screen.detail)
 ```
 
 **🚧 NOTE:** `SwiftUI` does not allow to dismiss multiple views at once! Therefore, methods such as `dismissAll()` or `dismiss(to:)`/`dismiss(from:)` will close all views **sequentially**. 
 
-To attach `ModalStack` to a `view`, you need to declare a **root view** on top of which all views will be presented using the method `definesPresentationContext(with:)`:
+To attach `ModalStackController` to a `view`, you need to declare a **root view** on top of which all views will be presented using the method `definesPresentationContext(with:)`:
 ```swift
 struct ExampleApp: App { 
-    @StateObject var modalStack = ModalStack()
+    @StateObject var modalStackController = ModalStackController()
 
     var body: some Scene { 
         WindowGroup { 
             RootView()
-                .definesPresentationContext(with: modalStack)
+                .definesPresentationContext(with: modalStackController)
                 // or just call .definesPresentationContext()
         }
     }
 }
 ```
-Any presented view has access to `ModalStack` through `EnvironmentObject` too:
+Any presented view has access to `ModalStackController` through `EnvironmentObject` too:
 ```swift
 struct RootView: View { 
-    @EnvironmentObject var modalStack: ModalStack
+    @EnvironmentObject var modalStackController: ModalStackController
 
     var body: some View { 
         VStack { 
             Text("Home screen")
             Button("FAQ") { 
-                modalStack.present(.sheet, FAQView())
+                modalStackController.present(.sheet, FAQView())
             }
             Button("Authorize") { 
-                modalStack.present(.fullScreenCover, LoginView())
+                modalStackController.present(.fullScreenCover, LoginView())
             }
         }
     }
 }
 ```
-> 💫 Just like in `NavigationStack` you can tag presented views when present with `ModalStack`
+> 💫 Just like in `NavigationStackController` you can tag presented views when present with `ModalStackController`
 
 # API
-`NavigationStack`
+`NavigationStackController`
 - push
 - push(tag:)
 - pop
@@ -168,7 +168,7 @@ struct RootView: View {
 - popLast(_ k:)
 - popToRoot
 
-`ModalStack`
+`ModalStackController`
 - present(_ presentationStyle:)
 - present(_ presentationStyle:tag:)
 - dismiss
@@ -184,11 +184,11 @@ struct RootView: View {
 ### Can i mix this framework with existing navigation approach in my project?
 
 **Yes, you can**. The framework does not affect navigation built in other ways, such as through the standard `@State var isActive: Bool` flags or through UIKit hacks.\
-`NavigationStack` and `ModalStack` create local state and manage only their own state.
+`NavigationStackController` and `ModalStackController` create local state and manage only their own state.
 
 ### What about `Alert`?
 
-Unfortunately, the framework **does not support** such a mechanism for working with `Alert`, BUT **you can implement it yourself by analogy** with `ModalStack`.\
+Unfortunately, the framework **does not support** such a mechanism for working with `Alert`, BUT **you can implement it yourself by analogy** with `ModalStackController`.\
 Your project can have many different custom presentations (`popup`, `snackbar`, `toast`, `notifications`) and each of them require specific logic for handle hierarchy, depending on their implementation.\
 So adding new presentation methods to the framework **is not planned**.
 

@@ -1,5 +1,5 @@
 //
-//  NavigationStack.swift
+//  NavigationStackController.swift
 //  ScreenNavigatorKit
 //
 //  Created by Ernest Babayan on 03.05.2022.
@@ -12,7 +12,7 @@ import Combine
 ///
 /// - Should be binded in specific NavigationStackView
 /// - Can not be empty. It always has a root view even if it's a EmptyView
-public final class NavigationStack: ObservableObject {
+public final class NavigationStackController: ObservableObject {
     // MARK: - Initializer
 
     public init() {}
