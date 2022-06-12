@@ -1,3 +1,6 @@
+![](https://img.shields.io/badge/Platform%20Compatibility-iOS%2014-orange) ![](https://img.shields.io/badge/Swift%20Compatibility-5.3%2B-orange)
+![](https://img.shields.io/badge/manager-SPM-orange)
+
 # ScreenNavigatorKit
 
 Framework that provide convenient environment for manage navigation in SwiftUI.
