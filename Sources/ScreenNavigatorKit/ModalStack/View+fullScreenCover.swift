@@ -8,11 +8,11 @@
 import SwiftUI
 
 extension View {
-    func fullScreenCover<Destination: View>(
-        _ destination: Binding<Destination?>
+    func fullScreenCover(
+        _ destination: Binding<(some View)?>
     ) -> some View {
         fullScreenCover(
-            isPresented: destination.isNotNil(),
+            isPresented: destination.isNotNil().removeDublicates(),
             content: { destination.wrappedValue }
         )
     }

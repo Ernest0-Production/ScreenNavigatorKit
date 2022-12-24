@@ -14,7 +14,9 @@ extension Binding {
                 isTrue ? self.wrappedValue : nil
             },
             set: { newValue, transaction in
-                self.transaction(transaction).wrappedValue = newValue
+                if isTrue {
+                    self.transaction(transaction).wrappedValue = newValue
+                }
             }
         )
     }

@@ -19,27 +19,26 @@ public final class NavigationStackController: ObservableObject {
 
     // MARK: - Properties
 
-    private let screenList = LinkedList<PushScreen>(
-        head: PushScreen() // Root screen
-    )
+    private var toggles: [PushToggle] = [
+        PushToggle.root()
+    ]
 
     public var itemsCount: Int {
-        screenList.sequence.reduce(0) { sum, _ in sum + 1 }
+        toggles.count
     }
 
     // MARK: - Root View body
 
-    func rootBody<Content: View>(content: Content) -> some View {
-        PushScreenView(
-            content: content,
-            screen: screenList.head.element
+    func rootBody(content: some View) -> some View {
+        content.modifier(
+            PushToggleViewModifier(toggle: toggles[0])
         )
     }
 
     // MARK: - Push
 
     /// Push view in navigation stack view.
-    public func push<Destination: View>(_ destination: Destination) {
+    public func push(_ destination: some View) {
         push(
             hashTag: .none,
             destination: destination
@@ -49,33 +48,32 @@ public final class NavigationStackController: ObservableObject {
     /// Push view in navigation stack view tagging it with a tag.
     ///
     /// The tag will allow to pop(to:) or pop(from:) exactly to this view.
-    public func push<Tag: Hashable, Destination: View>(
-        tag: Tag,
-        _ destination: Destination
+    public func push(
+        tag: some Hashable,
+        _ destination: some View
     ) {
         push(
-            hashTag: AnyHashable(tag),
+            hashTag: tag,
             destination: destination
         )
     }
 
-    private func push<Destination: View>(
+    private func push(
         hashTag: AnyHashable?,
-        destination: Destination
+        destination: some View
     ) {
-        let currentScreen = screenList.tail
-        let newScreen = screenList.append(PushScreen(tag: hashTag))
+        let currentToggle = toggles.last!
+        let newToggle = PushToggle(tag: hashTag)
+        toggles.append(newToggle)
 
-        currentScreen.pushedView = PushScreenView(
-            content: destination,
-            screen: newScreen.element
-        ).asAny()
-
-        currentScreen.element.onChangePushedView = { [weak screenList, weak newScreen] presentedView in
-            if presentedView == nil, let newScreen = newScreen {
-                screenList?.remove(newScreen)
+        let newToggleIndex = toggles.count - 1
+        currentToggle.push(
+            to: destination,
+            with: newToggle,
+            onDismiss: { [weak self] in
+                self?.toggles.removeSubrange(newToggleIndex...)
             }
-        }
+        )
     }
 
     // MARK: - Pop
@@ -89,37 +87,52 @@ public final class NavigationStackController: ObservableObject {
 
     /// Pop to root view in navigation stack view.
     public func popToRoot() {
-        screenList.head.element.pushedView = nil
+        toggles.first?.pop()
     }
 
     /// Pop last top-most views in navigation stack view.
     ///
     /// If navigation stack has not any pushed views, it will stay on root view.
     public func popLast(_ screensNumber: Int) {
-        let currentScreen = screenList.tail.previousNodesSequence.dropFirst(screensNumber).first
-        currentScreen?.pushedView = nil
+        guard screensNumber < toggles.count else {
+            popToRoot()
+            return
+        }
+
+        toggles.dropLast(screensNumber).last?.pop()
     }
 
     /// Pop all top-most views starting with view with specific tag in navigation stack view.
     ///
     /// Search first view with passed screen tag and remove it and all next views from navigation stack.
     /// If the view is not found, nothing happens.
-    public func pop<Tag: Hashable>(from tag: Tag) {
-        let currentScreen = screenList.sequence
-            .first(where: { $0.element.tag == AnyHashable(tag) })?
-            .previousNode
+    public func pop(from tag: some Hashable) {
+        guard let popScreenIndex = toggles.firstIndex(where: { $0.tag == AnyHashable(tag) }) else {
+            return
+        }
 
-        currentScreen?.pushedView = nil
+        guard popScreenIndex != 0 else {
+            popToRoot()
+            return
+        }
+
+        toggles[popScreenIndex - 1].pop()
     }
 
     /// Pop to view with specific tag in navigation stack view.
     ///
     /// Search first view with passed screen tag and remove all next views from navigation stack until tagged view is at the top of the stack.
     /// If the view is not found, nothing happens.
-    public func pop<Tag: Hashable>(to tag: Tag) {
-        let currentScreen = screenList.sequence
-            .first(where: { $0.element.tag == AnyHashable(tag) })
+    public func pop(to tag: some Hashable) {
+        guard let newTopmostScreenIndex = toggles.firstIndex(where: { $0.tag == AnyHashable(tag) }) else {
+            return
+        }
 
-        currentScreen?.pushedView = nil
+        guard newTopmostScreenIndex != 0 else {
+            popToRoot()
+            return
+        }
+
+        toggles[newTopmostScreenIndex].pop()
     }
 }

@@ -8,12 +8,12 @@
 import SwiftUI
 
 extension View {
-    func push<Destination: View>(
-        _ destination: Binding<Destination?>
+    func push(
+        _ destination: Binding<(some View)?>
     ) -> some View {
         background(NavigationLink(
             destination: destination.wrappedValue,
-            isActive: destination.isNotNil(),
+            isActive: destination.isNotNil().removeDublicates(),
             label: { EmptyView() }
         ).isDetailLink(false))
     }

@@ -18,29 +18,28 @@ public final class ModalStackController: ObservableObject {
 
     // MARK: - Properties
 
-    private let screenList = LinkedList<PresentScreen>(
-        head: PresentScreen() // Presenter screen
-    )
+    private var toggles: [ModalToggle] = [
+        ModalToggle()
+    ]
 
     public var itemsCount: Int {
-        screenList.sequence.reduce(0) { sum, _ in sum + 1 }
+        toggles.count
     }
 
     // MARK: - Presenter View body
 
-    func rootBody<Content: View>(content: Content) -> some View {
-        PresentScreenView(
-            content: content,
-            screen: screenList.head.element
+    func rootBody(content: some View) -> some View {
+        content.modifier(
+            ModalToggleViewModifier(toggle: toggles[0])
         )
     }
 
     // MARK: - Present
 
     /// Present view over last presented view.
-    public func present<Destination: View>(
+    public func present(
         _ presentationStyle: PresentationStyle,
-        _ destination: Destination
+        _ destination: some View
     ) {
         present(
             presentationStyle: presentationStyle,
@@ -52,10 +51,10 @@ public final class ModalStackController: ObservableObject {
     /// Present view over last presented view tagging it with a tag.
     ///
     /// The tag will allow to dismiss(to:) or dismiss(from:) exactly to this view.
-    public func present<Tag: Hashable, Destination: View>(
+    public func present(
         _ presentationStyle: PresentationStyle,
-        tag: Tag,
-        _ destination: Destination
+        tag: some Hashable,
+        _ destination: some View
     ) {
         present(
             presentationStyle: presentationStyle,
@@ -64,25 +63,24 @@ public final class ModalStackController: ObservableObject {
         )
     }
 
-    private func present<Destination: View>(
+    private func present(
         presentationStyle: PresentationStyle,
         hashTag: AnyHashable?,
-        destination: Destination
+        destination: some View
     ) {
-        let currentScreen = screenList.tail
-        let newScreen = screenList.append(PresentScreen(tag: hashTag))
+        let currentToggle = toggles.last!
+        let newToggle = ModalToggle(tag: hashTag)
+        toggles.append(newToggle)
 
-        currentScreen.presentationStyle = presentationStyle
-        currentScreen.presentedView = PresentScreenView(
-            content: destination,
-            screen: newScreen.element
-        ).asAny()
-
-        currentScreen.element.onChangePresentedView = { [weak screenList, weak newScreen] presentedView in
-            if presentedView == nil, let newScreen = newScreen {
-                screenList?.remove(newScreen)
+        let newToggleIndex = toggles.count - 1
+        currentToggle.present(
+            in: presentationStyle,
+            to: destination,
+            with: newToggle,
+            onDismiss: { [weak self] in
+                self?.toggles.removeSubrange(newToggleIndex...)
             }
-        }
+        )
     }
 
     // MARK: - Dismiss
@@ -98,52 +96,62 @@ public final class ModalStackController: ObservableObject {
     ///
     /// If modal stack has only root view, it will stay on root view.
     public func dismissAll() {
-        screenList.tail
-            .previousNodesSequence
-            .forEach({ $0.presentedView = nil })
+        toggles
+            .reversed()
+            .forEach({ $0.dismiss() })
     }
 
     /// Dismiss last top-most views **consequentially**.
     ///
     /// If modal stack has only root view, it will stay on root view.
     public func dismissLast(_ screensNumber: Int) {
-        let currentScreen = screenList.tail
-            .previousNodesSequence
-            .dropFirst(screensNumber)
-            .first
+        guard screensNumber < toggles.count else {
+            dismissAll()
+            return
+        }
 
-        currentScreen?
-            .nextNodesSequence
+        let newTopmostScreenIndex = (toggles.count - 1) - screensNumber
+
+        toggles[newTopmostScreenIndex...]
             .reversed()
-            .forEach({ $0.presentedView = nil })
+            .forEach({ $0.dismiss() })
     }
 
     /// Dismiss all top-most view starting with view specific tag.
     ///
     /// Search first view with passed screen tag and remove it and all next presented views **consequentially**.
     /// If the view is not found, nothing happens.
-    public func dismiss<Tag: Hashable>(from tag: Tag) {
-        let currentScreen = screenList.sequence
-            .first(where: { $0.element.tag == AnyHashable(tag) })?
-            .previousNode
+    public func dismiss(from tag: some Hashable) {
+        guard let dismissScreenIndex = toggles.firstIndex(where: { $0.tag == AnyHashable(tag) }) else {
+            return
+        }
 
-        currentScreen?
-            .nextNodesSequence
+        guard dismissScreenIndex != 0 else {
+            dismissAll()
+            return
+        }
+
+        toggles[(dismissScreenIndex - 1)...]
             .reversed()
-            .forEach({ $0.presentedView = nil })
+            .forEach({ $0.dismiss() })
     }
 
     /// Dismiss to view with view specific tag.
     ///
     /// Search first view with passed screen tag and remove it and all next presented views **consequentially**.
     /// If the view is not found, nothing happens.
-    public func dismiss<Tag: Hashable>(to tag: Tag) {
-        let currentScreen = screenList.sequence
-            .first(where: { $0.element.tag == AnyHashable(tag) })
+    public func dismiss(to tag: some Hashable) {
+        guard let newTopmostScreenIndex = toggles.firstIndex(where: { $0.tag == AnyHashable(tag) }) else {
+            return
+        }
 
-        currentScreen?
-            .nextNodesSequence
+        guard newTopmostScreenIndex != 0 else {
+            dismissAll()
+            return
+        }
+
+        toggles[newTopmostScreenIndex...]
             .reversed()
-            .forEach({ $0.presentedView = nil })
+            .forEach({ $0.dismiss() })
     }
 }

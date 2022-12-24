@@ -11,25 +11,20 @@ import SwiftUI
 /// that provides (as environment object) tools to change navigation stack (i.e. push/pop) in child views.
 public struct NavigationStackView<Content: View>: View {
     public init(
-        _ controller: @autoclosure @escaping () -> NavigationStackController = NavigationStackController(),
-        @ViewBuilder content: @escaping () -> Content
+        _ controller: NavigationStackController,
+        @ViewBuilder content: () -> Content
     ) {
-        self._controller = StateObject(wrappedValue: controller())
-        self.content = { _ in content() }
+        self.controller = controller
+        self.content = content()
     }
 
-    public init(@ViewBuilder content: @escaping (NavigationStackController) -> Content) {
-        self._controller = StateObject(wrappedValue: NavigationStackController())
-        self.content = content
-    }
-
-    @StateObject var controller: NavigationStackController
-    @ViewBuilder let content: (NavigationStackController) -> Content
+    @ObservedObject var controller: NavigationStackController
+    let content: Content
 
     public var body: some View {
         NavigationView {
             controller.rootBody(
-                content: content(controller)
+                content: content
             )
         }
         .environmentObject(controller)

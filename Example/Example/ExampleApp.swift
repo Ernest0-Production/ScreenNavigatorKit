@@ -8,131 +8,262 @@
 import SwiftUI
 import ScreenNavigatorKit
 
+struct PushExample: View {
+    @StateObject var controller = NavigationStackController()
+    @State var globalState = 0
+
+    var body: some View {
+        VStack(spacing: 0) {
+            NavigationStackView(controller) {
+                VStack {
+                    ScreenView(tag: "ROOT")
+                }
+            }
+
+            Divider()
+
+            PushControlView(controller: controller)
+        }
+    }
+
+    struct ScreenView: View {
+        let tag: String
+
+        @State var state: Int = 0
+
+        @EnvironmentObject var controller: NavigationStackController
+
+        var body: some View {
+            VStack(spacing: 16) {
+                Text("tag: \(tag)")
+
+                Text("items count: \(controller.itemsCount)")
+
+                Text("Local state \(state)")
+                Button("Increment state") { state += 1 }
+            }
+        }
+    }
+
+    struct PushControlView: View {
+        let controller: NavigationStackController
+
+        @State var tag: String = ""
+
+        @State var screenCount: Int = 4
+
+        var body: some View {
+            VStack(alignment: .leading) {
+                Text("Move to")
+
+                Divider()
+
+                Group {
+                    HStack {
+                        Text("TAG:")
+                        TextField("tag", text: $tag)
+                    }
+                    Button("PUSH") {
+                        if tag.isEmpty {
+                            let autoTag = UUID().uuidString
+                            controller.push(tag: autoTag, ScreenView(tag: autoTag))
+                        } else {
+                            controller.push(tag: tag, ScreenView(tag: tag))
+                        }
+                    }
+                    Button("POP TO") {
+                        if tag.isEmpty {
+                            controller.pop()
+                        } else {
+                            controller.pop(to: tag)
+                        }
+                    }
+                    Button("POP FROM") {
+                        controller.pop(from: tag)
+                    }
+                }
+
+                Divider()
+
+                Group {
+                    HStack {
+                        Text("SCREEN COUNT:")
+                        TextField("count", value: $screenCount, formatter: NumberFormatter())
+                    }
+                    Button("PUSH") {
+                        for number in 1...screenCount {
+                            controller.push(tag: number, ScreenView(tag: "\(number)"))
+                        }
+                    }
+                    .disabled(screenCount == 0)
+                    Button("POP LAST") {
+                        controller.popLast(screenCount)
+                    }
+                    .disabled(screenCount == 0)
+                }
+
+                Divider()
+
+                Button("POP TO ROOT") {
+                    controller.popToRoot()
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct ModalExample: View {
+    @StateObject var controller = ModalStackController()
+    @State var globalState = 0
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ModalStackView(controller) {
+                VStack {
+                    ScreenView(tag: "ROOT")
+                }
+            }
+        }
+    }
+
+    struct ScreenView: View {
+        let tag: String
+
+        @State var state: Int = 0
+
+        @EnvironmentObject var controller: ModalStackController
+
+        var body: some View {
+            VStack {
+                VStack(spacing: 16) {
+                    Text("tag: \(tag)")
+
+                    Text("items count: \(controller.itemsCount)")
+
+                    Text("Local state \(state)")
+                    Button("Increment state") { state += 1 }
+                }
+                .frame(maxHeight: .infinity)
+
+                Divider()
+
+                ModalControlView(controller: controller)
+            }
+        }
+    }
+
+    struct ModalControlView: View {
+        let controller: ModalStackController
+
+        @State var tag: String = ""
+
+        @State var screenCount: Int = 4
+        @State var presentationStyle: PresentationStyle = .sheet
+
+        var body: some View {
+            VStack(alignment: .leading) {
+                Picker("Style", selection: $presentationStyle) {
+                    Text(String(describing: PresentationStyle.sheet)).tag(PresentationStyle.sheet)
+                    Text(String(describing: PresentationStyle.fullScreenCover)).tag(PresentationStyle.fullScreenCover)
+                }
+                .pickerStyle(.segmented)
+
+                Text("Move to")
+
+                Divider()
+
+                Group {
+                    HStack {
+                        Text("TAG:")
+                        TextField("tag", text: $tag)
+                    }
+                    Button("PRESENT") {
+                        if tag.isEmpty {
+                            let autoTag = UUID().uuidString
+                            controller.present(presentationStyle, tag: autoTag, ScreenView(tag: autoTag))
+                        } else {
+                            controller.present(presentationStyle, tag: tag, ScreenView(tag: tag))
+                        }
+                    }
+                    Button("DISMISS TO") {
+                        if tag.isEmpty {
+                            controller.dismiss()
+                        } else {
+                            controller.dismiss(to: tag)
+                        }
+                    }
+                    Button("DISMISS FROM") {
+                        controller.dismiss(from: tag)
+                    }
+                }
+
+                Divider()
+
+                Group {
+                    HStack {
+                        Text("SCREEN COUNT:")
+                        TextField("count", value: $screenCount, formatter: NumberFormatter())
+                    }
+                    Button("PRESENT") {
+                        for number in 1...screenCount {
+                            controller.present(presentationStyle, tag: number, ScreenView(tag: "\(number)"))
+                        }
+                    }
+                    .disabled(screenCount == 0)
+                    Button("DISMISS LAST") {
+                        controller.dismissLast(screenCount)
+                    }
+                    .disabled(screenCount == 0)
+                }
+
+                Divider()
+
+                Button("DISMISS TO ROOT") {
+                    controller.dismissAll()
+                }
+            }
+            .padding()
+        }
+    }
+}
+
 @main
 struct ExampleApp: App {
-    @State var globalState = 0
+    @State var isPushExample = false
 
     var body: some Scene {
         WindowGroup {
-            VStack {
-                Button("Global state \(globalState)") {
-                    globalState += 1
-                }
+            Toggle("Push Example", isOn: $isPushExample)
+                .padding()
 
-                NavigationStackView {
-                    ExampleScreenView(
-                        title: "Root screen",
-                        pushActions: [
-                            PushAction(title: "push") {
-                                $0.push(
-                                    tag: "Screen 2",
-                                    ExampleScreenView(
-                                        title: "Screen 2",
-                                        pushActions: [
-                                            PushAction(title: "push") {
-                                                $0.push(ExampleScreenView(
-                                                    title: "Screen 3",
-                                                    pushActions: [
-                                                        PushAction(title: "pop") { $0.pop() },
-
-                                                        PushAction(title: "pop to root") { $0.popToRoot() },
-
-                                                        PushAction(title: "pop last 2") { $0.popLast(2) },
-
-                                                        PushAction(title: "pop to tagged Screen 2") { $0.pop(to: "Screen 2") },
-
-                                                        PushAction(title: "pop from tagged Screen 2") { $0.pop(from: "Screen 2") }
-                                                    ])
-                                                )
-                                            },
-
-                                            PushAction(title: "pop") { $0.pop() }
-                                        ]
-                                    )
-                                )
-                            },
-
-                            PushAction(title: "pop") { $0.pop() }
-                        ],
-                        presentActions: [
-                            PresentAction(title: "present") {
-                                $0.present(.fullScreenCover, tag: "Screen 2", ExampleScreenView(
-                                    title: "Screen 2",
-                                    presentActions: [
-                                        PresentAction(title: "Update global state \(globalState)") { _ in
-                                            globalState += 1
-                                        },
-
-                                        PresentAction(title: "dismiss") { $0.dismiss() },
-
-                                        PresentAction(title: "present") {
-                                            $0.present(.sheet, ExampleScreenView(
-                                                title: "Screen 3",
-                                                presentActions: [
-                                                    PresentAction(title: "dismis") { $0.dismiss() },
-                                                    PresentAction(title: "dismis all") { $0.dismissAll() },
-                                                    PresentAction(title: "dismis last 2") { $0.dismissLast(2) },
-                                                    PresentAction(title: "dismis from tagged Screen 2") { $0.dismiss(from: "Screen 2") },
-                                                    PresentAction(title: "dismis to tagged Screen 2") { $0.dismiss(to: "Screen 2") },
-                                                ]
-                                            ))
-                                        }
-                                    ]
-                                ))
-                            }
-                        ]
-                    )
-                        .definesPresentationContext()
-                }
+            if isPushExample {
+                PushExample()
+            } else {
+                ModalExample()
             }
         }
     }
 }
 
-struct PushAction {
-    internal init(title: String, _ perform: @escaping (NavigationStackController) -> Void) {
-        self.title = title
-        self.perform = perform
+func recursive(_ function: @escaping (@escaping () -> Void) -> Void) {
+    var functionPointer: (() -> Void)? = nil
+
+    functionPointer = {
+        function {
+            functionPointer!()
+        }
     }
 
-    let title: String
-    let perform: (NavigationStackController) -> Void
+    functionPointer!()
 }
 
-struct PresentAction {
-    internal init(title: String, _ perform: @escaping (ModalStackController) -> Void) {
-        self.title = title
-        self.perform = perform
-    }
-
-    let title: String
-    let perform: (ModalStackController) -> Void
-}
-
-struct ExampleScreenView: View {
-    let title: String
-    @EnvironmentObject var navigationStackController: NavigationStackController
-    @EnvironmentObject var modalStackController: ModalStackController
-    var pushActions: [PushAction] = []
-    var presentActions: [PresentAction] = []
-    @State var state = 0
-
-    var body: some View {
-        VStack {
-            Text(title)
-            Button("update screen state \(state)") {
-                state += 1
-            }
-            ForEach(0..<pushActions.count, id: \.self) { index in
-                Button(pushActions[index].title) {
-                    pushActions[index].perform(navigationStackController)
-                }
-            }
-            ForEach(0..<presentActions.count, id: \.self) { index in
-                Button(presentActions[index].title) {
-                    presentActions[index].perform(modalStackController)
-                }
-            }
+private extension Binding {
+    func number() -> Binding<String> where Value == Int {
+        Binding<String> {
+            self.wrappedValue.description
+        } set: { newValue, transaction in
+            self.transaction(transaction).wrappedValue = Int(newValue) ?? -1
         }
     }
 }

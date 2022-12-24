@@ -8,11 +8,11 @@
 import SwiftUI
 
 extension View {
-    func sheet<Destination: View>(
-        _ destination: Binding<Destination?>
+    func sheet(
+        _ destination: Binding<(some View)?>
     ) -> some View {
         sheet(
-            isPresented: destination.isNotNil(),
+            isPresented: destination.isNotNil().removeDublicates(),
             content: { destination.wrappedValue }
         )
     }
