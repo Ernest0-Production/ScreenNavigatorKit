@@ -66,7 +66,7 @@ public final class ModalStackController: ObservableObject {
     private func present(
         presentationStyle: PresentationStyle,
         hashTag: AnyHashable?,
-        destination: some View
+        destination presentedView: some View
     ) {
         let currentToggle = toggles.last!
         let newToggle = ModalToggle(tag: hashTag)
@@ -75,7 +75,7 @@ public final class ModalStackController: ObservableObject {
         let newToggleIndex = toggles.count - 1
         currentToggle.present(
             in: presentationStyle,
-            to: destination,
+            presentedView,
             with: newToggle,
             onDismiss: { [weak self] in
                 self?.toggles.removeSubrange(newToggleIndex...)
@@ -96,9 +96,7 @@ public final class ModalStackController: ObservableObject {
     ///
     /// If modal stack has only root view, it will stay on root view.
     public func dismissAll() {
-        toggles
-            .reversed()
-            .forEach({ $0.dismiss() })
+        toggles.first?.dismissPresentedView()
     }
 
     /// Dismiss last top-most views **consequentially**.
@@ -110,11 +108,7 @@ public final class ModalStackController: ObservableObject {
             return
         }
 
-        let newTopmostScreenIndex = (toggles.count - 1) - screensNumber
-
-        toggles[newTopmostScreenIndex...]
-            .reversed()
-            .forEach({ $0.dismiss() })
+        toggles.dropLast(screensNumber).last?.dismissPresentedView()
     }
 
     /// Dismiss all top-most view starting with view specific tag.
@@ -131,9 +125,7 @@ public final class ModalStackController: ObservableObject {
             return
         }
 
-        toggles[(dismissScreenIndex - 1)...]
-            .reversed()
-            .forEach({ $0.dismiss() })
+        toggles[(dismissScreenIndex - 1)].dismissPresentedView()
     }
 
     /// Dismiss to view with view specific tag.
@@ -150,8 +142,6 @@ public final class ModalStackController: ObservableObject {
             return
         }
 
-        toggles[newTopmostScreenIndex...]
-            .reversed()
-            .forEach({ $0.dismiss() })
+        toggles[newTopmostScreenIndex].dismissPresentedView()
     }
 }

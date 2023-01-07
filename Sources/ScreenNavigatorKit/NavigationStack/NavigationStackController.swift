@@ -60,7 +60,7 @@ public final class NavigationStackController: ObservableObject {
 
     private func push(
         hashTag: AnyHashable?,
-        destination: some View
+        destination pushedView: some View
     ) {
         let currentToggle = toggles.last!
         let newToggle = PushToggle(tag: hashTag)
@@ -68,7 +68,7 @@ public final class NavigationStackController: ObservableObject {
 
         let newToggleIndex = toggles.count - 1
         currentToggle.push(
-            to: destination,
+            to: pushedView,
             with: newToggle,
             onDismiss: { [weak self] in
                 self?.toggles.removeSubrange(newToggleIndex...)

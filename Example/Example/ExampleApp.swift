@@ -10,7 +10,6 @@ import ScreenNavigatorKit
 
 struct PushExample: View {
     @StateObject var controller = NavigationStackController()
-    @State var globalState = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -115,7 +114,6 @@ struct PushExample: View {
 
 struct ModalExample: View {
     @StateObject var controller = ModalStackController()
-    @State var globalState = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -230,17 +228,24 @@ struct ModalExample: View {
 
 @main
 struct ExampleApp: App {
-    @State var isPushExample = false
+    enum ExampleType {
+        case push, modal
+    }
+
+    @State var exampleType = ExampleType.push
 
     var body: some Scene {
         WindowGroup {
-            Toggle("Push Example", isOn: $isPushExample)
-                .padding()
+            Picker("Example Type", selection: $exampleType) {
+                Text("Push").tag(ExampleType.push)
+                Text("Modal").tag(ExampleType.modal)
+            }
+            .pickerStyle(.segmented)
+            .padding()
 
-            if isPushExample {
-                PushExample()
-            } else {
-                ModalExample()
+            switch exampleType {
+            case .push: PushExample()
+            case .modal: ModalExample()
             }
         }
     }
