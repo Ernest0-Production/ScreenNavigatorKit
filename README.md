@@ -128,16 +128,16 @@ modalStackController.dismiss(to: Screen.detail)
 
 **🚧 NOTE:** `SwiftUI` does not allow to dismiss multiple views at once! Therefore, methods such as `dismissAll()` or `dismiss(to:)`/`dismiss(from:)` will close all views **sequentially**. 
 
-To attach `ModalStackController` to a `view`, you need to declare a **root view** on top of which all views will be presented using the method `definesPresentationContext(with:)`:
+Its companion is `ModalStackView` that bind `ModalStackController` with it:
 ```swift
 struct ExampleApp: App { 
     @StateObject var modalStackController = ModalStackController()
 
     var body: some Scene { 
-        WindowGroup { 
-            RootView()
-                .definesPresentationContext(with: modalStackController)
-                // or just call .definesPresentationContext()
+        WindowGroup {
+            ModalStackView(modalStackController) { 
+                RootView()
+            }
         }
     }
 }
